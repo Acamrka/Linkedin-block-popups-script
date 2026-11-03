@@ -1,0 +1,26 @@
+// ==UserScript==
+// @name         LinkedIn: skip invite note
+// @match        https://www.linkedin.com/*
+// @grant        none
+// ==/UserScript==
+console.log('LinkedIn skip-note script loaded');
+const LABEL = 'Send without a note';
+
+function find(root) {
+  for (const b of root.querySelectorAll('button')) {
+    if (b.textContent.trim() === LABEL || b.getAttribute('aria-label') === LABEL) return b;
+  }
+  for (const el of root.querySelectorAll('*')) {
+    if (el.shadowRoot) { const b = find(el.shadowRoot); if (b) return b; }
+  }
+  return null;
+}
+
+document.addEventListener('click', () => {
+  let tries = 0;
+  const timer = setInterval(() => {
+    const btn = find(document);
+    if (btn) { btn.click(); clearInterval(timer); }
+    else if (++tries > 40) clearInterval(timer);
+  }, 50);
+}, true);
